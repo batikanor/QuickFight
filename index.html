@@ -1,0 +1,20 @@
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="style.css">
+
+
+    <body>
+        <canvas></canvas>
+        
+        <script>
+            const canvas = document.getElementsByTagName('canvas')[0]
+            canvas.width = window.innerWidth
+            canvas.height = window.innerHeight
+
+            const ctx = canvas.getContext('2d')
+            ctx.fillText("Hey", 100, 100)
+            ctx.fillRect(20,90,40,50)
+        </script>
+    </body>
+</head>
+</html>
