@@ -17,34 +17,27 @@ window.addEventListener("load", () => {
     // resizing
     resizeCanvas()
 
-
-    
-    ctx.fillText("Hey", 100, 100)
-    ctx.fillRect(20,90,40,50)
-
-    
+    // render
+    render(gameState)
 
 
-    ctx.translate(100,100)
-    renderAvatar()
-    ctx.translate(0,40)
-    renderShot()
 
 })
 
-function renderAvatar(){ 
-        
+function renderAvatar(player){
+    ctx.save() 
+    ctx.translate(player.x, player.y)
     // draw avatar shape
     ctx.beginPath()
     ctx.arc(0,0,22,0, (3/2) * Math.PI)
     ctx.closePath()
-    ctx.fillStyle = 'green'
+    ctx.fillStyle = player.color
     ctx.fill()
 
     // draw nickname
     ctx.textAlign = 'center'
     ctx.fillStyle = 'black'
-    ctx.fillText('batikanor', 0, -25)
+    ctx.fillText(player.nickname, 0, -25)
 
     // this is where rotation should go
 
@@ -59,6 +52,9 @@ function renderAvatar(){
     ctx.strokeRect(8, 10, 5, 5);
     ctx.strokeStyle = "#FFFFFF"; 
     ctx.stroke()
+
+
+    ctx.restore()
 }
 
 window.addEventListener("resize",resizeCanvas)
@@ -110,11 +106,52 @@ function drawStar(cx,cy,spikes,outerRadius,innerRadius){
     ctx.fill();
 }
 
-function renderShot(){
+function renderShot(shot){
     // ctx.beginPath()
     // ctx.arc(0,0,5,0,2*Math.PI);
     // ctx.closePath()
     // ctx.fillStyle = 'red'
     // ctx.fill()
+
+    ctx.save()
+    ctx.translate(shot.x, shot.y)
+
     drawStar(0,0,5,4,2)
+    ctx.restore()
+}
+
+
+const gameState = {
+    players: [
+        {
+            nickname: 'batikanor',
+            x: 50, y: 50,
+            color: '#9c9cc2',
+            shots: [
+                {
+                    x: 50, y: 150
+                },
+                {
+                    x:50, y: 300
+                }
+            ]
+        },
+        {
+            nickname: 'player1',
+            x: 200, y: 100,
+            color: "#92E548",
+            shots: []
+        }
+    ]
+}
+
+function render (state) {
+    state.players.forEach(function (player) {
+   
+        renderAvatar(player)
+        player.shots.forEach(function (shot){
+
+            renderShot(shot)
+        })
+    })
 }
