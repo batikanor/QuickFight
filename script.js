@@ -14,6 +14,12 @@ const ctx = canvas.getContext('2d');
 const SHOT_SPEED = 5
 const PLAYER_SPEED = 3
 const keyboardState = {}
+const DIRECTION = {
+	UP: 0,
+	DOWN: 1,
+	LEFT: 2,
+	RIGHT: 3
+}
 
 
 // when window is first loaded
@@ -50,23 +56,44 @@ function renderAvatar(player){
     ctx.fillText(player.nickname, 0, -25)
 
     // rotate
-    ctx.rotate(player.rotation)
+    switch (player.direction){
+        case DIRECTION.UP:
+            ctx.rotate(Math.PI)
+            break
+        case DIRECTION.DOWN: 
+            ctx.rotate(0)
+            break
+        case DIRECTION.LEFT:
+            ctx.rotate(Math.PI / 2)
+            break
+        case DIRECTION.RIGHT:
+            ctx.rotate(Math.PI * 1.5)
+            break
+
+    }
 
 
-    // setting location of eyes and mouth (for direction)
+    drawMouth()
+
+
+
+    ctx.restore()
+}
+
+function drawMouth(){
     ctx.beginPath()
     ctx.moveTo(-5, 5)
     ctx.lineTo(-5, 17)
     ctx.moveTo(5,5)
     ctx.lineTo(5,17)
+    ctx.stroke()
+}
+function drawEyes(){
     ctx.strokeStyle = "#FF0000"; 
     ctx.strokeRect(8, 0, 5, 5);
     ctx.strokeRect(8, 10, 5, 5);
     ctx.strokeStyle = "#FFFFFF"; 
-    ctx.stroke()
-
-
-    ctx.restore()
+    ctx.stroke() 
 }
 
 window.addEventListener("resize",resizeCanvas)
@@ -89,8 +116,15 @@ function disableScroll() {
         };
 }
 
+function drawCircle(color){
+    ctx.beginPath()
+    ctx.arc(0,0,5,0,2*Math.PI);
+    ctx.closePath()
+    ctx.fillStyle = color
+    ctx.fill()
+}
 // thanks markE and Andrei Volgin
-function drawStar(cx,cy,spikes,outerRadius,innerRadius){
+function drawStar(cx,cy,spikes,outerRadius,innerRadius, outerColor, innerColor){
     var rot=Math.PI/2*3;
     var x=cx;
     var y=cy;
@@ -112,23 +146,22 @@ function drawStar(cx,cy,spikes,outerRadius,innerRadius){
     ctx.lineTo(cx,cy-outerRadius);
     ctx.closePath();
     ctx.lineWidth=5;
-    ctx.strokeStyle='red';
+    ctx.strokeStyle = outerColor;
     ctx.stroke();
-    ctx.fillStyle='darkRed';
+    ctx.fillStyle = innerColor;
     ctx.fill();
 }
 
 function renderShot(shot){
-    // ctx.beginPath()
-    // ctx.arc(0,0,5,0,2*Math.PI);
-    // ctx.closePath()
-    // ctx.fillStyle = 'red'
-    // ctx.fill()
+ 
 
     ctx.save()
     ctx.translate(shot.x, shot.y)
 
-    drawStar(0,0,5,4,2)
+
+    drawCircle('blue')
+    drawStar(0,0,2,4,2, "green", "darkRed")
+
     ctx.restore()
 }
 
@@ -150,14 +183,14 @@ const gameState = {
 
                 }
             ],
-            rotation: Math.PI / 2,
+            direction: DIRECTION.RIGHT
         },
         {
             nickname: 'player1',
             x: 200, y: 100,
             color: "#92E548",
             shots: [],
-            rotation: 0
+            direction: DIRECTION.RIGHT
         }
     ]
 }
@@ -200,12 +233,61 @@ function gameLogic(state) {
         player.shots.forEach(shot => {
             shot.x += shot.vx // speed of shot in dimension x
             shot.y += shot.vy
+
+            if (shot.x < 0 || shot.y < 0 || shot.x > canvas.width || shot.y > canvas.height) {
+                shot.remove = true
+            }
         })
+        player.shots = player.shots.filter(shot => {
+            return shot.remove !== true
+        })
+
+
     })
 
+
+
+
+
     // moving first player for test
+    const myPlayer = state.players[0]
     if (keyboardState.w ) {
-        state.players[0].y -= PLAYER_SPEED
+        myPlayer.y -= PLAYER_SPEED
+        myPlayer.direction = DIRECTION.UP
+    }
+    if (keyboardState.s ) {
+        myPlayer.y += PLAYER_SPEED
+        myPlayer.direction = DIRECTION.DOWN
+    }
+    if (keyboardState.d ) {
+        myPlayer.x += PLAYER_SPEED
+        myPlayer.direction = DIRECTION.RIGHT
+    }
+    if (keyboardState.a ) {
+        myPlayer.x -= PLAYER_SPEED
+        myPlayer.direction = DIRECTION.LEFT
+    }
+    if (keyboardState[' ']) {
+        const shot = {
+            x: myPlayer.x, y: myPlayer.y,
+            vx: 0, vy: 0
+        }
+        switch(myPlayer.direction){
+            case DIRECTION.UP:
+                shot.vy = -SHOT_SPEED
+                break
+            case DIRECTION.DOWN:
+                shot.vy = SHOT_SPEED
+                break
+            case DIRECTION.LEFT:
+                shot.vx = -SHOT_SPEED
+                break
+            case DIRECTION.RIGHT:
+                shot.vx = SHOT_SPEED
+                break
+        }
+        myPlayer.shots.push(shot)
+
     }
 
 }
