@@ -1,3 +1,5 @@
+// SYSTEM DEPENDENT VARIABLES
+
 // get reference to canvas
 const canvas = document.getElementsByTagName('canvas')[0]
 //const canvas = document.getElementById('canvas')
@@ -5,6 +7,14 @@ const canvas = document.getElementsByTagName('canvas')[0]
 
 // get reference to rendering context
 const ctx = canvas.getContext('2d'); 
+
+
+
+// GAME DEPENDENT VARIABLES
+const SHOT_SPEED = 5
+const PLAYER_SPEED = 3
+const keyboardState = {}
+
 
 // when window is first loaded
 window.addEventListener("load", () => {
@@ -17,8 +27,8 @@ window.addEventListener("load", () => {
     // resizing
     resizeCanvas()
 
-    // render
-    render(gameState)
+    // game
+    gameLoop()
 
 
 
@@ -39,7 +49,9 @@ function renderAvatar(player){
     ctx.fillStyle = 'black'
     ctx.fillText(player.nickname, 0, -25)
 
-    // this is where rotation should go
+    // rotate
+    ctx.rotate(player.rotation)
+
 
     // setting location of eyes and mouth (for direction)
     ctx.beginPath()
@@ -129,23 +141,43 @@ const gameState = {
             color: '#9c9cc2',
             shots: [
                 {
-                    x: 50, y: 150
+                    x: 50, y: 150,
+                    vx: 0, vy: SHOT_SPEED
                 },
                 {
-                    x:50, y: 300
+                    x:50, y: 300,
+                    vx: SHOT_SPEED, vy: 0
+
                 }
-            ]
+            ],
+            rotation: Math.PI / 2,
         },
         {
             nickname: 'player1',
             x: 200, y: 100,
             color: "#92E548",
-            shots: []
+            shots: [],
+            rotation: 0
         }
     ]
 }
 
+document.addEventListener('keydown', function(e) {
+    keyboardState[e.key] = true
+})
+
+document.addEventListener('keyup', function(e) {
+    keyboardState[e.key] = false
+})
+
+
+
 function render (state) {
+    // clear canvas so that shots get cleaned after they're drawn on thier new locations
+    ctx.fillStyle = 'white'
+    ctx.fillRect(0,0,canvas.width, canvas.height)
+
+
     state.players.forEach(function (player) {
    
         renderAvatar(player)
@@ -154,4 +186,26 @@ function render (state) {
             renderShot(shot)
         })
     })
+}
+
+function gameLoop () {
+    requestAnimationFrame(gameLoop)
+    gameLogic(gameState)
+    render(gameState)
+
+}
+
+function gameLogic(state) {
+    state.players.forEach(player => {
+        player.shots.forEach(shot => {
+            shot.x += shot.vx // speed of shot in dimension x
+            shot.y += shot.vy
+        })
+    })
+
+    // moving first player for test
+    if (keyboardState.w ) {
+        state.players[0].y -= PLAYER_SPEED
+    }
+
 }
