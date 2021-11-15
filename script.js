@@ -13,6 +13,8 @@ const ctx = canvas.getContext('2d');
 // GAME DEPENDENT VARIABLES
 const SHOT_SPEED = 5
 const PLAYER_SPEED = 3
+const AVATAR_RADIUS = 20
+const SHOT_RADIUS = 8
 const keyboardState = {}
 const DIRECTION = {
 	UP: 0,
@@ -43,13 +45,32 @@ window.addEventListener("load", () => {
 function renderAvatar(player){
     ctx.save() 
     ctx.translate(player.x, player.y)
+    
     // draw avatar shape
+
+
     ctx.beginPath()
-    ctx.arc(0,0,22,0, (3/2) * Math.PI)
+    ctx.arc(0,0,AVATAR_RADIUS,0, 2 * Math.PI)
     ctx.closePath()
-    ctx.fillStyle = player.color
+    var my_gradient = ctx.createLinearGradient(0, 0, 0, 170);
+    my_gradient.addColorStop(0, "black");
+    my_gradient.addColorStop(1, "white");
+    ctx.fillStyle = my_gradient
     ctx.fill()
 
+    ctx.beginPath()
+    var my_gradient = ctx.createLinearGradient(0, 0, 0, 170);
+    ctx.arc(0,0,AVATAR_RADIUS,0, (3/2) * Math.PI)
+    ctx.closePath()
+
+    my_gradient = ctx.createLinearGradient(100, 0, 0, 170);
+    my_gradient.addColorStop(0, player.color);
+    my_gradient.addColorStop(1, "black");
+    ctx.fillStyle = my_gradient
+    // ctx.fillStyle = player.color
+    ctx.fill()
+
+ 
     // draw nickname
     ctx.textAlign = 'center'
     ctx.fillStyle = 'black'
@@ -118,7 +139,7 @@ function disableScroll() {
 
 function drawCircle(color){
     ctx.beginPath()
-    ctx.arc(0,0,5,0,2*Math.PI);
+    ctx.arc(0,0,SHOT_RADIUS,0,2*Math.PI);
     ctx.closePath()
     ctx.fillStyle = color
     ctx.fill()
@@ -158,9 +179,12 @@ function renderShot(shot){
     ctx.save()
     ctx.translate(shot.x, shot.y)
 
-
-    drawCircle('blue')
-    drawStar(0,0,2,4,2, "green", "darkRed")
+    var my_gradient = ctx.createLinearGradient(100, 0, 0, 170);
+    my_gradient.addColorStop(0, "black");
+    my_gradient.addColorStop(1, "darkred");
+    
+    drawCircle(my_gradient)
+    // drawStar(0,0,2,4,2, "green", "darkRed")
 
     ctx.restore()
 }
@@ -173,15 +197,15 @@ const gameState = {
             x: 50, y: 50,
             color: '#9c9cc2',
             shots: [
-                {
-                    x: 50, y: 150,
-                    vx: 0, vy: SHOT_SPEED
-                },
-                {
-                    x:50, y: 300,
-                    vx: SHOT_SPEED, vy: 0
+                // {
+                //     x: 50, y: 150,
+                //     vx: 0, vy: SHOT_SPEED
+                // },
+                // {
+                //     x:50, y: 300,
+                //     vx: SHOT_SPEED, vy: 0
 
-                }
+                // }
             ],
             direction: DIRECTION.RIGHT
         },
@@ -197,6 +221,30 @@ const gameState = {
 
 document.addEventListener('keydown', function(e) {
     keyboardState[e.key] = true
+    
+    if (e. key === ' ') {
+        const myPlayer = gameState.players[0] // for now
+        const shot = {
+            x: myPlayer.x, y: myPlayer.y,
+            vx: 0, vy: 0
+        }
+        switch(myPlayer.direction){
+            case DIRECTION.UP:
+                shot.vy = -SHOT_SPEED
+                break
+            case DIRECTION.DOWN:
+                shot.vy = SHOT_SPEED
+                break
+            case DIRECTION.LEFT:
+                shot.vx = -SHOT_SPEED
+                break
+            case DIRECTION.RIGHT:
+                shot.vx = SHOT_SPEED
+                break
+        }
+        myPlayer.shots.push(shot)
+
+    }
 })
 
 document.addEventListener('keyup', function(e) {
@@ -226,6 +274,14 @@ function gameLoop () {
     gameLogic(gameState)
     render(gameState)
 
+}
+function hitTestPlayerVsShot(player, shot) {
+    // hipotenus
+    return Math.sqrt(Math.pow(player.x - shot.x, 2) + Math.pow(player.y - shot.y, 2)) < (SHOT_RADIUS + AVATAR_RADIUS)
+}
+function hitTestPlayerVsPlayer(playerA, playerB) {
+    // hipotenus
+    return Math.sqrt(Math.pow(playerA.x - playerB.x, 2) + Math.pow(playerA.y - playerB.y, 2)) < (AVATAR_RADIUS * 2)
 }
 
 function gameLogic(state) {
@@ -267,27 +323,29 @@ function gameLogic(state) {
         myPlayer.x -= PLAYER_SPEED
         myPlayer.direction = DIRECTION.LEFT
     }
-    if (keyboardState[' ']) {
-        const shot = {
-            x: myPlayer.x, y: myPlayer.y,
-            vx: 0, vy: 0
-        }
-        switch(myPlayer.direction){
-            case DIRECTION.UP:
-                shot.vy = -SHOT_SPEED
-                break
-            case DIRECTION.DOWN:
-                shot.vy = SHOT_SPEED
-                break
-            case DIRECTION.LEFT:
-                shot.vx = -SHOT_SPEED
-                break
-            case DIRECTION.RIGHT:
-                shot.vx = SHOT_SPEED
-                break
-        }
-        myPlayer.shots.push(shot)
 
-    }
+    // collision algorithm here
+    state.players.forEach(playerA => {
+        playerA.shots.forEach(shot =>{
+            state.players.forEach(playerB =>{
+                if (playerA === playerB) {
+                    // shouldn't detect self hit
+                    return
+                }
+                if (hitTestPlayerVsShot(playerB, shot)){
+                    shot.remove = true
+                    playerB.eliminated = true
+
+                }
+
+            })
+
+        })
+        state.players.forEach(player => {
+
+        })
+    })
+    // remove elimnated players
+    state.players = state.players.filter(player => !player.eliminated)
 
 }
