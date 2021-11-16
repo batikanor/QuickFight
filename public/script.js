@@ -6,7 +6,8 @@ const canvas = document.getElementsByTagName('canvas')[0]
 //const canvas = document.querySelector("#canvas") 
 
 // get reference to rendering context
-const ctx = canvas.getContext('2d'); 
+const ctx = canvas.getContext('2d');
+
 
 const socket = io();
 
@@ -24,17 +25,23 @@ const DIRECTION = {
 	RIGHT: 3
 }
 
+var background = new Image();
+background.src = "https://i.imgur.com/3Fa06yT.jpg";
+
+
 
 // when window is first loaded
 window.addEventListener("load", () => {
     console.log("Window has been loaded.");
 
-    disableScroll()
+    // disableScroll()
 
 
 
     // resizing
-    resizeCanvas()
+    // resizeCanvas()
+    canvas.width = background.width
+    canvas.height = background.height
 
     // game
     gameLoop()
@@ -43,7 +50,8 @@ window.addEventListener("load", () => {
 
 })
 
-function renderAvatar(player){
+function renderMapWithAvatar(player){
+    ctx.drawImage(background,0,0);   
     
     if (player.eliminated) return
 
@@ -74,10 +82,19 @@ function renderAvatar(player){
     // ctx.fillStyle = player.color
     ctx.fill()
 
- 
+  
+    
     // draw nickname
+    ctx.shadowColor = "white" // string
+    // Color of the shadow;  RGB, RGBA, HSL, HEX, and other inputs are valid.
+    ctx.shadowOffsetX = 0; // integer
+    // Horizontal distance of the shadow, in relation to the text.
+    ctx.shadowOffsetY = 0; // integer
+    // Vertical distance of the shadow, in relation to the text.
+    ctx.shadowBlur = 3; // integer
     ctx.textAlign = 'center'
     ctx.fillStyle = 'black'
+    ctx.font = "italic bolder 12pt Courier";
     ctx.fillText(player.nickname, 0, -25)
 
     // rotate
@@ -121,7 +138,7 @@ function drawEyes(){
     ctx.stroke() 
 }
 
-window.addEventListener("resize",resizeCanvas)
+// window.addEventListener("resize",resizeCanvas)
 
 function resizeCanvas() {
     canvas.width = window.innerWidth * 90 / 100
@@ -276,7 +293,7 @@ function render (state) {
 
     state.players.forEach(function (player) {
    
-        renderAvatar(player)
+        renderMapWithAvatar(player)
         player.shots.forEach(function (shot){
 
             renderShot(shot)
