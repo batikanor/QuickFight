@@ -199,7 +199,7 @@ const gameState = {
         {
             nickname: prompt('Type in your nicnkame'),
             playerId: Math.floor(Math.random() * 100000000),
-            x: 50, y: 50,
+            x: Math.random() * (canvas.width), y: Math.random(canvas.height),
             color: '#9c9cc2',
             shots: [
                 // {
