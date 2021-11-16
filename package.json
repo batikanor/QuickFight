@@ -2,5 +2,23 @@
   "dependencies": {
     "express": "^4.17.1",
     "socket.io": "^4.3.2"
-  }
+  },
+  "scripts": {
+    "start": "node server.js"
+  },
+  "name": "quickfight",
+  "version": "1.0.0",
+  "description": "fight a quick fight",
+  "main": "server.js",
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/batikanor/QuickFight.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/batikanor/QuickFight/issues"
+  },
+  "homepage": "https://github.com/batikanor/QuickFight#readme"
 }
