@@ -8,6 +8,7 @@ const canvas = document.getElementsByTagName('canvas')[0]
 // get reference to rendering context
 const ctx = canvas.getContext('2d'); 
 
+const socket = io();
 
 
 // GAME DEPENDENT VARIABLES
@@ -43,6 +44,9 @@ window.addEventListener("load", () => {
 })
 
 function renderAvatar(player){
+    
+    if (player.eliminated) return
+
     ctx.save() 
     ctx.translate(player.x, player.y)
     
@@ -193,7 +197,8 @@ function renderShot(shot){
 const gameState = {
     players: [
         {
-            nickname: 'batikanor',
+            nickname: prompt('Type in your nicnkame'),
+            playerId: Math.floor(Math.random() * 100000000),
             x: 50, y: 50,
             color: '#9c9cc2',
             shots: [
@@ -209,15 +214,17 @@ const gameState = {
             ],
             direction: DIRECTION.RIGHT
         },
-        {
-            nickname: 'player1',
-            x: 200, y: 100,
-            color: "#92E548",
-            shots: [],
-            direction: DIRECTION.RIGHT
-        }
+        // {
+        //     nickname: 'player1',
+        //     x: 200, y: 100,
+        //     color: "#92E548",
+        //     shots: [],
+        //     direction: DIRECTION.RIGHT
+        // }
     ]
 }
+
+const myPlayerId = gameState.players[0].playerId 
 
 document.addEventListener('keydown', function(e) {
     keyboardState[e.key] = true
@@ -307,21 +314,26 @@ function gameLogic(state) {
 
     // moving first player for test
     const myPlayer = state.players[0]
-    if (keyboardState.w ) {
-        myPlayer.y -= PLAYER_SPEED
-        myPlayer.direction = DIRECTION.UP
-    }
-    if (keyboardState.s ) {
-        myPlayer.y += PLAYER_SPEED
-        myPlayer.direction = DIRECTION.DOWN
-    }
-    if (keyboardState.d ) {
-        myPlayer.x += PLAYER_SPEED
-        myPlayer.direction = DIRECTION.RIGHT
-    }
-    if (keyboardState.a ) {
-        myPlayer.x -= PLAYER_SPEED
-        myPlayer.direction = DIRECTION.LEFT
+
+    if (!myPlayer.eliminated){
+
+        if (keyboardState.w ) {
+            myPlayer.y -= PLAYER_SPEED
+            myPlayer.direction = DIRECTION.UP
+        }
+        if (keyboardState.s ) {
+            myPlayer.y += PLAYER_SPEED
+            myPlayer.direction = DIRECTION.DOWN
+        }
+        if (keyboardState.d ) {
+            myPlayer.x += PLAYER_SPEED
+            myPlayer.direction = DIRECTION.RIGHT
+        }
+        if (keyboardState.a ) {
+            myPlayer.x -= PLAYER_SPEED
+            myPlayer.direction = DIRECTION.LEFT
+        }
+    
     }
 
     // collision algorithm here
@@ -334,7 +346,10 @@ function gameLogic(state) {
                 }
                 if (hitTestPlayerVsShot(playerB, shot)){
                     shot.remove = true
-                    playerB.eliminated = true
+                    if (playerB.playerId === myPlayerId){
+                        // others must remove themselves
+                        playerB.eliminated = true
+                    }
 
                 }
 
@@ -346,7 +361,28 @@ function gameLogic(state) {
         })
     })
     // remove elimnated players
-    state.players = state.players.filter(player => !player.eliminated);
-
+    // state.players = state.players.filter(player => !player.eliminated);
+    socket.emit('stateUpdate', state.players[0])
 }
-const socket = io();
+
+socket.on('stateUpdateForwardedByServer', function(player){
+    if (player.playerId === myPlayerId){
+        // ignore own update
+        return
+    }
+
+    let playerWasFound = false
+    for (let i = 0; i < gameState.players.length; ++i){
+        if (gameState.players[i].playerId === player.playerId){
+            gameState.players[i] = player
+            playerWasFound = true
+            break // loop done, no need to continue
+        }
+    }
+    // gameState.players.forEach 
+
+    if (!playerWasFound) {
+        // player that is newly introduced
+        gameState.players.push(player)
+    }
+})
