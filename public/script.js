@@ -250,9 +250,9 @@ document.addEventListener('keydown', function(e) {
                 case DIRECTION.RIGHT:
                     shot.vx = SHOT_SPEED
                     break
-                    
-            myPlayer.shots.push(shot)
             }
+            myPlayer.shots.push(shot)
+
         } else {
             location.reload()
         }
