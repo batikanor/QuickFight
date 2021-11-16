@@ -34,7 +34,7 @@ background.src = "https://i.imgur.com/3Fa06yT.jpg";
 window.addEventListener("load", () => {
     console.log("Window has been loaded.");
 
-    // disableScroll()
+    disableScroll()
 
 
 
