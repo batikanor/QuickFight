@@ -249,11 +249,12 @@ document.addEventListener('keydown', function(e) {
                     break
                 case DIRECTION.RIGHT:
                     shot.vx = SHOT_SPEED
+                    break
                     
             myPlayer.shots.push(shot)
             }
         } else {
-            location.reload
+            location.reload()
         }
 
         
