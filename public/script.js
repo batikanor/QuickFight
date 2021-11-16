@@ -197,7 +197,7 @@ function renderShot(shot){
 const gameState = {
     players: [
         {
-            nickname: prompt('Type in your nicnkame'),
+            nickname: prompt('Type in your nickname (max 20 chars)').substring(0,20),
             playerId: Math.floor(Math.random() * 100000000),
             x: Math.random() * (canvas.width), y: Math.random() * canvas.height,
             // color: '#9c9cc2',
