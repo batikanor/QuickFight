@@ -346,6 +346,7 @@ function gameLogic(state) {
         })
     })
     // remove elimnated players
-    state.players = state.players.filter(player => !player.eliminated)
+    state.players = state.players.filter(player => !player.eliminated);
 
 }
+const socket = io();
