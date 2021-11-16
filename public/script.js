@@ -231,25 +231,30 @@ document.addEventListener('keydown', function(e) {
     keyboardState[e.key] = true
     
     if (e. key === ' ') {
-        const myPlayer = gameState.players[0] // for now
-        const shot = {
-            x: myPlayer.x, y: myPlayer.y,
-            vx: 0, vy: 0
+        const myPlayer = gameState.players[0]
+        if (!myPlayer.eliminated){
+            const shot = {
+                x: myPlayer.x, y: myPlayer.y,
+                vx: 0, vy: 0
+            }
+            switch(myPlayer.direction){
+                case DIRECTION.UP:
+                    shot.vy = -SHOT_SPEED
+                    break
+                case DIRECTION.DOWN:
+                    shot.vy = SHOT_SPEED
+                    break
+                case DIRECTION.LEFT:
+                    shot.vx = -SHOT_SPEED
+                    break
+                case DIRECTION.RIGHT:
+                    shot.vx = SHOT_SPEED
+                    break
+            }
+        } else {
+            location.reload
         }
-        switch(myPlayer.direction){
-            case DIRECTION.UP:
-                shot.vy = -SHOT_SPEED
-                break
-            case DIRECTION.DOWN:
-                shot.vy = SHOT_SPEED
-                break
-            case DIRECTION.LEFT:
-                shot.vx = -SHOT_SPEED
-                break
-            case DIRECTION.RIGHT:
-                shot.vx = SHOT_SPEED
-                break
-        }
+
         myPlayer.shots.push(shot)
 
     }
@@ -357,9 +362,9 @@ function gameLogic(state) {
             })
 
         })
-        state.players.forEach(player => {
+        // state.players.forEach(player => {
 
-        })
+        // })
     })
     // remove elimnated players
     // state.players = state.players.filter(player => !player.eliminated);
