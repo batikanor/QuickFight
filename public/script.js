@@ -29,7 +29,7 @@ const DIRECTION = {
 window.addEventListener("load", () => {
     console.log("Window has been loaded.");
 
-    // disableScroll()
+    disableScroll()
 
 
 
