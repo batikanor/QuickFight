@@ -10,7 +10,6 @@
   "version": "1.0.0",
   "description": "fight a quick fight",
   "main": "server.js",
-  "devDependencies": {},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/batikanor/QuickFight.git"
