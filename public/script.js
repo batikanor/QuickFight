@@ -25,8 +25,8 @@ const DIRECTION = {
 	RIGHT: 3
 }
 
-var background = new Image();
-background.src = "https://i.imgur.com/3Fa06yT.jpg";
+// var background = new Image();
+// background.src = "https://i.imgur.com/3Fa06yT.jpg";
 
 
 
@@ -37,11 +37,12 @@ window.addEventListener("load", () => {
     disableScroll()
 
 
-
     // resizing
     // resizeCanvas()
-    canvas.width = background.width
-    canvas.height = background.height
+    // canvas.width = background.width
+    // canvas.height = background.height
+    canvas.width = 900
+    canvas.height = 600
 
     // game
     gameLoop()
@@ -51,11 +52,13 @@ window.addEventListener("load", () => {
 })
 
 function renderMapWithAvatar(player){
-    ctx.drawImage(background,0,0);   
     
     if (player.eliminated) return
-
+    
     ctx.save() 
+
+    // ctx.drawImage(background,0,0);   
+    // ctx.translate(0,0)
     ctx.translate(player.x, player.y)
     
     // draw avatar shape
@@ -290,6 +293,8 @@ function render (state) {
     ctx.fillStyle = 'white'
     ctx.fillRect(0,0,canvas.width, canvas.height)
 
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     state.players.forEach(function (player) {
    

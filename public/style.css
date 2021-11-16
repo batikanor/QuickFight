@@ -3,7 +3,8 @@ html, body {
     margin: 0;
 }
 canvas {
-    width: 90%;
-    height: 90%;
+    /* width: 90%; */
+    /* height: 90%; */
     border: 3px dotted black;
+    background-image: url("https://i.imgur.com/3Fa06yT.jpg");
 }
