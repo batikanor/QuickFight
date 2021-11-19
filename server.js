@@ -1,3 +1,4 @@
+
 const express = require('express')
 const app = express()
 const path = require('path') 
@@ -20,7 +21,7 @@ app.get('/', (req, res) => {
 io.on('connection', (socket) => {
     console.log('got a connection now!')
     socket.on('stateUpdate', function(player) {
-        // console.log('state upate received', player) 
-       io.sockets.emit('stateUpdateForwardedByServer', player) 
+        console.log(Date.now(), 'state update received', player) 
+        io.sockets.emit('stateUpdateForwardedByServer', player) 
     })
 }) 
